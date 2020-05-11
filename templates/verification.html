@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>Hello</title>
+	</head>
+	<body>
+		<center>
+			<div id = "verification">
+				<div>
+						Secret invite code, or get out of here while alive!
+				</div>
+				{% if error %}
+					<div style="color: red">
+						{{ error }}
+					</div>
+				{% endif %}
+				<div>
+					<form action="{{root}}verification/" method = "post">
+						<input type="text" name="secret_invite_code" placeholder="secret invite code"/><br>
+						<button value = "666" type="submit"> 
+							Get it!
+						</button>
+					</form>
+				</div>				
+			</div>
+		</center>
+	</body>
+</html>

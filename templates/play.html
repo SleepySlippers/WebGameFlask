@@ -1,0 +1,219 @@
+<head>
+    <meta charset="UTF-8">
+    <title>Play</title>
+    <style type="text/css">
+        #bottom{
+            position: absolute;
+            bottom: 5%;
+            padding-left: 40%;
+            width: 20%;
+        }
+        #timer{
+            position: absolute;
+            right: 0%;
+            width: 20%;
+        }
+
+    </style>
+</head>
+<body>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"
+        type="text/javascript"></script>
+<center>
+    <div id="Greeting">
+        <h1>
+            Hi, {{request.cookies.get('login')}}!
+            {% if room_members_without_me|length %}
+            <div>
+                You are in room with
+                {% set members_names = [] %}
+                {% for member in room_members_without_me %}
+                {% set trash = members_names.append(member[0]) %}
+                {% endfor %}
+                {{ ', '.join(members_names) }}!
+            </div>
+            <table>
+                <tbody>
+                <tr>
+                    {% for member in room_members_without_me %}
+                    <td {% if member[4] %}
+                            disabled
+                        {% endif %}
+                    >
+                        <center>
+                            <div>
+                                {{ member[0] }}<br>
+                                Have {{ member [1] }} bullets
+                            </div>
+                            <button value="attack" {% if me[1]|int
+                            < 1 %} disabled
+                            {% else %}
+                            onclick="update_choose('attack',
+                            '{{member[2]}}')"
+                            {% endif %}
+                            {% if action == 'attack' and target == member[2] %}
+                            style="border: 3px; border-style: dotted;
+                            border-color: red;"
+                            {% endif %}
+                            >
+                            Attack
+                            </button><br>
+                            <button value="super_attack" {% if me[1]|int
+                            < 3 %} disabled
+                            {% else %}
+                            onclick="update_choose('super_attack',
+                            '{{member[2]}}')"
+                            {% endif %}
+                            {% if action == 'super_attack' and target ==
+                            member[2] %}
+                            style="border: 3px; border-style: dotted;
+                            border-color: red;"
+                            {% endif %}
+                            >
+                            SuperAttack
+                            </button>
+                        </center>
+                    </td>
+                    {% endfor %}
+                </tr>
+                </tbody>
+            </table>
+            {% endif %}
+            {% if not room_members_without_me|length %}
+            <div>
+                You are alone in room
+            </div>
+            {% endif %}
+        </h1>
+    </div>
+
+    <div id="bottom" style="">
+        {% if not me[3] %}
+        <div id="my_info">
+            You Have {{ me [1] }} bullets
+        </div>
+        <br>
+        <div id="buttons">
+            <table>
+                <tbody>
+                <tr>
+                    <td>
+                        <div
+                                {% if action=='defence' %}
+                                style="border: 3px; border-style: dotted; border-color: red;"
+                                {% endif %}
+                        >
+                            <button value="defence"
+                                    onclick="update_choose('defence')">
+                                Defence
+                            </button>
+                        </div>
+                    </td>
+                    <td>
+                        <div
+                                {% if action=='reload' %}
+                                style="border: 3px; border-style: dotted; border-color: red;"
+                                {% endif %}
+                        >
+                            <button value="reload"
+                                    {% if me[1]|int < 6 %}
+                                    onclick="update_choose('reload')"
+                                    {% else %}
+                                    disabled
+                                    {% endif %}
+                            >
+                                Reload
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div>
+            I am dead
+        </div>
+        {% endif %}
+        <form action="{{root}}leave_room/" method="get">
+            <button value="777" type="submit">
+                I'm leaving
+            </button>
+        </form>
+    </div>
+</center>
+<div id="timer">
+    {{time_left}} seconds left
+</div>
+<script>
+        //setTimeout("location.reload();", 1000)
+        //col = 1;
+        var action = "{{action}}";
+        var targ = "{{target}}";
+
+        var initial_value = {{time_left}};
+        var timer = initial_value;
+
+        function set_timer(){
+            timer = {{time_left}};
+        }
+
+        function update_timer(){
+            timer -= 0.1;
+            if (timer <= 0){
+                //update();
+                location.reload();
+                return;
+            }
+            timer *= 10;
+            timer = Math.round(timer)
+            timer /= 10;
+            document.getElementById("timer").innerHTML = timer + " seconds\
+            left";
+            setTimeout("update_timer();", 100);
+        }
+        update_timer();
+
+        txt = '';
+		function update(){
+            url = "{{root}}play/";
+            fetch(url).then(function(response) {
+                response.text().then(function(text) {
+                    txt = text;
+                    if (text != document.documentElement.innerHTML){
+                        document.documentElement.innerHTML = text;
+                        console.log('updated');
+                        //console.log(document.documentElement.innerHTML)
+                        //console.log(text)
+                    }
+                });
+            });
+            //if (col > 0){
+                setTimeout("update();", 1000);
+//                col --;
+//            }
+		}
+        setTimeout("update();", 1000);
+
+        function on_click(email){
+            alert('hello ' + email);
+        }
+
+        function send_choose(type, target = undefined){
+            $.post( "{{root}}play/", {
+                type: type,
+                target: target
+            });
+            setTimeout("update();", 50);
+        }
+
+        function update_choose(type, target = undefined){
+            if (action != type || target != targ){
+                send_choose(type, target);
+                action = type;
+                targ = target;
+                return;
+            }
+        }
+</script>
+</body>
