@@ -1,0 +1,51 @@
+<head>
+    <meta charset="UTF-8">
+    <title>Play</title>
+    <style type="text/css">
+        #bottom{
+            position: absolute;
+            bottom: 5%;
+            padding-left: 40%;
+            width: 20%;
+        }
+        #timer{
+            position: absolute;
+            right: 0%;
+            width: 20%;
+        }
+
+    </style>
+</head>
+<body>
+<center>
+    <div id="Greeting">
+        <h1>
+            Hi, {{request.cookies.get('login')}}!
+            {% if room_members_without_me|length %}
+            <div>
+                You are in room with
+                {% set members_names = [] %}
+                {% for member in room_members_without_me %}
+                {% set trash = members_names.append(member[0]) %}
+                {% endfor %}
+                {{ ', '.join(members_names) }}!
+            </div>
+            {% endif %}
+            {{winner}}
+        </h1>
+    </div>
+
+    <div id="bottom" style="">
+        {% if me[3] %}
+        <div>
+            I am dead
+        </div>
+        {% endif %}
+        <form action="{{root}}leave_room/" method="get">
+            <button value="777" type="submit">
+                I'm leaving
+            </button>
+        </form>
+    </div>
+</center>
+</body>

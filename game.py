@@ -63,6 +63,8 @@ def create_room(members: List[str]):
     room_info['members'] = ' '.join(members)
     room_info['number'] = room_number
     room_info['round_started'] = get_time()
+    room_info['size'] = len(members)
+    room_info['dead_count'] = 0
     write_info(room_path(room_number), room_info)
 
 
@@ -129,11 +131,19 @@ def leave_room():
     if (authorisation.get_status(email) != 'playing'):
         redirect_to_root()
     player_info = read_info(profile_path(email))
-    room_info = read_info(room_path(player_info.get('room')))
+    try:
+        room_info = read_info(room_path(player_info.get('room')))
+    except FileNotFoundError:
+        player_info['status'] = 'in_menu'
+        player_info.pop('room', None)
+        write_info(profile_path(email), player_info)
+        return redirect_to_root()
     room_members = room_info['members'].split()
-    room_members.remove(email)
-    if (len(room_members)):
-        room_info['members'] = ' '.join(room_members)
+    # room_members.remove(email)
+    if (email + '_is_dead') not in room_info:
+        room_info[email + '_is_dead'] = True
+        room_info['dead_count'] = int(room_info.get('dead_count')) + 1
+    if (int(room_info.get('dead_count')) < int(room_info.get('size'))):
         write_info(room_path(player_info.get('room')), room_info)
     else:
         os.remove(room_path(player_info.get('room')))
@@ -167,6 +177,8 @@ def change_choose(req: Response, email: str) -> Response:
     room_number = player_info.get('room')
     room_info = read_info(room_path(room_number))
     action_type = req.form.get('type')
+    if ((email + '_is_dead') in room_info):
+        return make_response("failed", 404)
     if (action_type is not None):
         print(action_type)
         if (action_type == 'defence'):
@@ -210,7 +222,7 @@ def produce_round_results(number: str) -> dict:
     for member in members:
         bullets_have = int(room_info.get(member + '_bullet_count'))
         action = room_info.get(member + '_action')
-        #print(action)
+        # print(action)
         print(bullets_have)
         if (action == 'reload'):
             if (bullets_have < 6):
@@ -221,15 +233,20 @@ def produce_round_results(number: str) -> dict:
             bullets_have -= 1
             if (room_info.get(target + '_action') != 'defence'):
                 room_info[target + '_is_dead'] = True
+                print(target + '_is_dead')
 
         if (action == 'super_attack'):
             bullets_have -= 3
             room_info[target + '_is_dead'] = True
 
         room_info[member + '_bullet_count'] = bullets_have
+    dead_count = 0
     for member in members:
         room_info[member + '_action'] = 'defence'
         room_info.pop(member + '_target', None)
+        if (member + '_is_dead') in room_info:
+            dead_count += 1
+    room_info['dead_count'] = dead_count
     write_info(room_path(number), room_info)
     return room_info
 
@@ -259,25 +276,46 @@ def play():
         return check
     email = request.cookies.get('email')
     player_info = read_info(profile_path(email))
-    room_number = player_info.get('room')
-    room_info = read_info(room_path(room_number))
     if (player_info.get('status') != 'playing'):
         return redirect_to_root()
     if request.method == 'POST':
         return change_choose(request, email)
+    room_number = player_info.get('room')
+    try:
+        room_info = read_info(room_path(room_number))
+    except FileNotFoundError:
+        player_info['status'] = 'in_menu'
+        player_info.pop('room', None)
+        write_info(profile_path(email), player_info)
+        return redirect_to_root()
     time_left = check_room_time(room_number)
-    print(time_left)
+    room_info = read_info(room_path(room_number))
     room_members_without_me = get_room_members_without_me_info(room_number,
                                                                email)
     me = (player_info.get('login'),
           room_info.get(email + '_bullet_count'),
           email,
           (email + '_is_dead') in room_info)
+    if (int(room_info.get('dead_count')) + 1 >= int(room_info.get('size'))):
+        if (int(room_info.get('dead_count')) == int(room_info.get(
+                'size'))):
+            winner = 'No winner all is dead'
+        elif (email + '_is_dead') not in room_info:
+            winner = 'Winner is You!'
+        else:
+            for member in room_members_without_me:
+                if (not member[3]):
+                    winner = 'Winner is ' + member[0]
+        return render_template('results.html', root=glob.game_prefix,
+                               room_members_without_me=room_members_without_me,
+                               winner=winner,
+                               me=me)
     action = room_info.get(email + '_action')
     target = room_info.get(email + '_target')
     time_left = round(float(time_left), 1) + 0.1
     time_left = str(time_left).split('.')[0] + '.' + str(time_left).split('.')[
         1][0]
+
     return render_template('play.html',
                            root=glob.game_prefix,
                            room_members_without_me=room_members_without_me,
