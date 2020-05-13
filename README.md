@@ -29,5 +29,5 @@ python app.py
 ![death](https://github.com/SlippySleppers/WebGameFlask/raw/dev/readme_pictures/death.png)
 
 ( возможна смерть обоих )
-![before_death](https://github.com/SlippySleppers/WebGameFlask/raw/dev/readme_pictures/before_death.png)
+![before_all_death](https://github.com/SlippySleppers/WebGameFlask/raw/dev/readme_pictures/before_all_death.png)
 ![all_death](https://github.com/SlippySleppers/WebGameFlask/raw/dev/readme_pictures/all_death.png)
