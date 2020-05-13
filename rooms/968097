@@ -1,0 +1,9 @@
+firstplayer@firstplayer_bullet_count 0
+firstplayer@firstplayer_action defence
+secondplayer@secondplayer_bullet_count 0
+secondplayer@secondplayer_action defence
+members firstplayer@firstplayer secondplayer@secondplayer
+number 968097
+round_started 1589418582.586871
+size 2
+dead_count 0
