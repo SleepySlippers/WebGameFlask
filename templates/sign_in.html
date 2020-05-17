@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>Hello</title>
+	</head>
+	<body>
+		<center>
+			<div id = "registration">
+				<div>
+						We need to check you!
+				</div>
+				{% if error %}
+					<div style="color: red">
+						{{ error }}
+					</div>
+				{% endif %}
+				<div>
+					<form action="{{root}}sign_in/" method = "post">
+					<input type="email" name="email" placeholder="email"/><br>
+						<input type="password" name="password" placeholder="secret word"/><br>
+						<button value = "666" type="submit"> 
+							Remember me!
+						</button>
+					</form>
+
+					<form action="{{root}}" method = "get">
+						<button value = "999" type="submit">
+							Back
+						</button>
+					</form>
+				</div>				
+			</div>
+		</center>
+	</body>
+</html>

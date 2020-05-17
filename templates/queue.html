@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Queue</title>
+</head>
+<body>
+<center>
+    <div id="Greeting">
+        <h1>
+            Hi, {{request.cookies.get('login')}}!
+            <div>
+                Waiting for players
+            </div>
+            <form action="{{root}}leave_queue/" method="get">
+                <button value="777" type="submit">
+                    I'm leaving
+                </button>
+            </form>
+        </h1>
+    </div>
+</center>
+
+<script>
+		//setTimeout("location.reload();", 1000)
+		function update(){
+            url = "{{root}}queue/";
+            fetch(url).then(function(response) {
+                response.text().then(function(text) {
+                    if (text.indexOf("<title>Pl" + "ay</title>") != -1){
+                        location.reload();
+                    }
+                });
+            });
+            setTimeout("update();", 100)
+		}
+        setTimeout("update();", 1000)
+
+
+</script>
+</body>
+</html>

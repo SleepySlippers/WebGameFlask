@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>Hello</title>
+	</head>
+	<body>
+		<center>
+			<div id = "registration">
+				<div>
+						We are always welcome new!
+				</div>
+				{% if error %}
+					<div style="color: red">
+						{{ error }}
+					</div>
+				{% endif %}
+				<div>
+					<form action="{{root}}registration/" method = "post">
+						<input type="text" name="login" placeholder="nickname"/><br>
+						<input type="password" name="password" placeholder="secret word"/><br>
+						<input type="email" name="email" placeholder="email"/><br>
+						<button value = "666" type="submit"> 
+							Remember me!
+						</button>
+					</form>
+
+					<form action="{{root}}" method="get">
+						<button value="999" type="submit">
+							Back
+						</button>
+					</form>
+				</div>				
+			</div>
+		</center>
+	</body>
+</html>

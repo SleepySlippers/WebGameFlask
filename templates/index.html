@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Hello</title>
+</head>
+<body>
+<center>
+<div id = "Greeting">
+	{%if request.cookies.get('login') %} 
+		<h1>
+			Hi, {{request.cookies.get('login')}}!
+			<form action="{{root}}queue/" method = "get">
+				<button value = "322" type="submit">
+					Get in queue
+				</button>
+			</form>
+			<form action="{{root}}leave/" method = "get">
+				<button value = "777" type="submit">
+					I'm leaving (sign out)
+				</button>
+			</form>
+		</h1>
+	{%endif%}
+	{%if not request.cookies.get('login') %} 
+		<h1>
+			What's your name, buddy?
+			<form action="{{root}}sign_in" method = "get">
+				<button value = "666" type="submit"> 
+					How could you forget me? (sign in)
+				</button>
+			</form>
+			<form action="{{root}}registration/" method = "get">
+				<button value = "999" type="submit"> 
+					I'm new one (registration)
+				</button>
+			</form>
+		</h1>
+	{%endif%}
+</div>
+</center>
+</body>
+</html>
